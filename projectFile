@@ -1,0 +1,239 @@
+import java.util.Scanner;
+import java.util.Random;
+class sort {
+    Scanner in = new Scanner(System.in);
+    int spot = 0; //A tracker for our array
+    int[] numbers = new int[100]; //Our main array to be manipulated
+    int[] hold; //An array to hold values since numbers can be ambiguously big from 0-100
+    
+    public void Read (int x) { //Allows user to input integers up to 100
+        numbers[spot] = x;
+        spot++;
+        System.out.println(x+" has been added into spot "+(spot));
+    }
+    
+    public void Print () { //Prints out the array for the user
+        for (int i = 0; i < hold.length; i++) {
+            System.out.print(hold[i]+", ");
+        }
+        System.out.println("");
+    }
+    
+    public void Confine () { //Confinement which will be utilizing Hold
+        int[] confined = new int[spot];
+        for (int i = 0; i < spot; i++) {
+            confined[i] = numbers[i];
+        }
+        hold = confined;
+    }
+    
+    public void MergeCentral (int[] x, int l) { //Breaking of the array into small parts is done here.
+        if (l < 2)
+            return;
+        int middle = l/2;
+        int[] temp1 = new int[middle];
+        int[] temp2 = new int[l-middle];
+        
+        for (int i = 0; i < middle; i++) //These just make sure we keep our numbers from array.
+            temp1[i] = x[i];
+        for (int i = middle; i < l; i++)
+            temp2[i-middle] = x[i];
+        
+        MergeCentral(temp1, temp1.length);
+        MergeCentral(temp2, temp2.length);
+        
+        Merge(x, temp1, temp2); //This function will actually do the bulk work of sorting.
+        
+        for (int i = 0; i < hold.length; i++) {
+            numbers[i] = hold[i];
+        }
+    }
+    
+    public void Merge (int[] fin, int[] x, int[] y) { //The actual sort
+        
+        int counter = 0; //It will act as a mover.
+        int keepx = 0;
+        int keepy = 0; //These will both let me keep a track of how many elements have been used in each array.
+        while (keepx < x.length && keepy < y.length) {
+            if (x[keepx] > y[keepy]) {
+                fin[counter] = y[keepy];
+                keepy++;
+            }
+            else {
+                fin[counter] = x[keepx];
+                keepx++;
+            }
+            counter++;
+        } //This code is going to run until Ive used all the elements of one of my arrays.
+        
+        if (keepx == x.length) {
+            while(keepy < y.length) {
+                fin[counter] = y[keepy];
+                keepy++;
+                counter++;
+            }
+        }
+        else 
+            while (keepx < x.length) {
+                fin[counter] = x[keepx];
+                keepx++;
+                counter++;
+            } //This code finishes off the array that survived round 1.
+    }
+    
+    public void QuickCentral (int[] x, int l, int r) { //Hub for our Quick Sort, like our Merge Central
+        if (l < r) {
+            int h = Partition(x, l, r);
+            QuickCentral(x, l, h-1);
+            QuickCentral(x, h+1, r);
+        }
+        for (int i = 0; i < hold.length; i++) {
+            numbers[i] = hold[i];
+        }
+    }
+    
+    public int Partition (int[] x, int l, int r) { //This function makes our increment points
+        boolean leftnright = true;
+        while (l < r) {
+            if (x[l] > x[r]) {
+                int temp = x[r];
+                x[r] = x[l];
+                x[l] = temp;
+                leftnright = !leftnright;
+            }
+            if (leftnright)
+                r--;
+            else
+                l++;
+        }
+        return l;
+    }
+    
+    public void ShellCentral(int[] x) { //Shell sorting
+        int value = x.length;
+        for (int i = value; i > 0; i/=2) { //Makes our first tracking midway point for shell
+            for (int j = i; j < value; j++) { //Creates a copy
+                int hold = x[j]; //Holds a value to be swapped
+                int l = j;
+                while (l >= i && x[l-i] > hold) { //Checks for values that need swapped
+                    x[l] = x[l-i]; //Swaps them
+                    l-=i;
+                }
+                x[i] = hold; //Finishes swap
+            }
+        }
+        for (int i = 0; i < hold.length; i++) {
+            numbers[i] = hold[i];
+        }
+    }
+    
+    public int BinarySearch(int x[], int y, int goal) {
+        int left = 0;
+        int right = y-1;
+        while (left <= right) {
+            int mid = (left+right)/2;
+            if (x[mid] == goal)
+                return mid;
+            if (x[mid] < goal)
+                left = mid+1;
+            else
+                right = mid-1;
+        }
+        return -1;
+    }
+    
+    public int InterSearch(int x[], int y, int goal) {
+        int left = 0;
+        int right = y-1;
+        int count = 0;
+        int m = (left+(((goal-x[left]*(right-left))/(x[right]-x[left]))*(right-left)));
+        if (m < 0 || m >= x.length)
+            return -1;
+        while (x[m] != goal) {
+            if (count>x.length || m >= x.length || m < 0) {
+                m = -1;
+                break;
+            }
+            if (x[m] < goal)
+                m++;
+            else
+                m--;
+            count++;
+            if (count>x.length || m >= x.length || m < 0) {
+                m = -1;
+                break;
+            }
+        }
+        if (m > y || m < 0)
+            return -1;
+        else
+            return m;
+    }
+}
+public class Hw5BurlKGray310 {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        Random ran = new Random();
+        sort sort = new sort();
+        int answer;
+        System.out.println("Welcome to the Array Sorter!");
+        do {
+        System.out.println("1. Insert integer into array");
+        System.out.println("2. Print Array");
+        System.out.println("3. Sort Array");
+        System.out.println("4. Search Array");
+        System.out.println("0. Quit");
+        answer = in.nextInt();
+        
+        if (answer == 1) {
+            System.out.println("Give us an Integer to add (Limit of 100");
+            int temp = in.nextInt();
+            sort.Read(temp);
+        }
+        if (answer == 2) {
+            sort.Confine();
+            sort.Print();
+        }
+        if (answer == 3) {
+            System.out.println("1. Merge Sort");
+            System.out.println("2. Quick Sort");
+            System.out.println("3. Shell Sort");
+            System.out.println("0. Quit");
+            int answer2 = in.nextInt();
+            if (answer2 == 1) {
+                sort.Confine();
+                sort.MergeCentral(sort.hold, sort.hold.length);
+            }
+            if (answer2 == 2) {
+                sort.Confine();
+                sort.QuickCentral(sort.hold, 0, sort.hold.length-1);
+            }
+            if (answer2 == 3) {
+                sort.Confine();
+                sort.ShellCentral(sort.hold);
+            }
+        }
+        if (answer == 4) {
+            System.out.println("If the array is not sorted, this will not be accurate. Sort first!");
+            System.out.println("Any array being searched must be sorted first.");
+            System.out.println("1. Binary Search");
+            System.out.println("2. Interpolation Search");
+            System.out.println("0. Quit");
+            int answer3 = in.nextInt();
+            
+            if (answer3 == 1) {
+                System.out.println("What integer are you looking for?");
+                int goal = in.nextInt();
+                System.out.println(sort.BinarySearch(sort.hold, sort.hold.length-1, goal)+1+" is the spot that holds "+goal);
+            }
+            if (answer == 2) {
+                System.out.println("What integer are you looking for?");
+                int goal = in.nextInt();
+                System.out.println(sort.InterSearch(sort.hold, sort.hold.length-1, goal)+1+" is the spot that holds "+goal);
+            }
+        }
+        } while (answer!=0);
+        System.out.println("Thank you!");
+    }
+    
+}
